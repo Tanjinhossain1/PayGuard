@@ -65,30 +65,8 @@ export default function SigninPage() {
               variant: "destructive",
             });
       } else {
-        router.push('/dashboard')
+        router.push('/')
       }
-  
-      // const response = await fetch("/api/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(values),
-      // });
-
-      // const data = await response.json();
-      // console.log(data)
-      // if (response.ok) {
-      //   toast({
-      //     title: "Success",
-      //     description: "Signin successful!",
-      //   });
-      //   router.push("/dash");
-      // } else {
-      //   toast({
-      //     title: "Error",
-      //     description: data.error,
-      //     variant: "destructive",
-      //   });
-      // }
     } catch (error) {
       console.log("Error In app/login/page.tsx", error);
       toast({
