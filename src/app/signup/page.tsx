@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -37,7 +36,7 @@ const formSchema = z.object({
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const router = useRouter()
+  const [successStatus,setSuccessStatus] = useState<boolean>(false);
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,17 +57,18 @@ export default function SignupPage() {
       })
 
       const data = await response.json();
-      console.log(data)
+      console.log('data ',data)
       if (response.ok) {
         toast({
           title: "Success",
           description: "Signup successful! Please login.",
         })
-        router.push('/login')
+        setSuccessStatus(true);
       } else {
+        setSuccessStatus(false);
         toast({
           title: "Error",
-          description: data.error,
+          description: data.error === "duplicate key value violates unique constraint \"users_email_key\"" ? "This user already exist" : data.error,
           variant: "destructive",
         })
       }
@@ -169,11 +169,14 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
+              {
+                successStatus ? <p className='mt-1 text-green-600'>Check your email, and login</p> : null
+              }
               <Button type="submit" className="w-full">Sign Up</Button>
               <p className="mt-4 text-center text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link href="/signin" className="font-medium text-primary hover:underline">
-                  Sign in
+                <Link href="/login" className="font-medium text-primary hover:underline">
+                  Login
                 </Link>
               </p>
             </form>

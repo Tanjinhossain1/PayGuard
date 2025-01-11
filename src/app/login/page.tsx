@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { supabase } from "@/lib/supabaseClient";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -52,27 +53,42 @@ export default function SigninPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       console.log(values)
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-      console.log(data)
-      if (response.ok) {
+      const {email,password} = values
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (error) {
         toast({
-          title: "Success",
-          description: "Signin successful!",
-        });
-        router.push("/");
+              title: "Error",
+              description: error.message,
+              variant: "destructive",
+            });
       } else {
-        toast({
-          title: "Error",
-          description: data.error,
-          variant: "destructive",
-        });
+        router.push('/dashboard')
       }
+  
+      // const response = await fetch("/api/auth/login", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(values),
+      // });
+
+      // const data = await response.json();
+      // console.log(data)
+      // if (response.ok) {
+      //   toast({
+      //     title: "Success",
+      //     description: "Signin successful!",
+      //   });
+      //   router.push("/dash");
+      // } else {
+      //   toast({
+      //     title: "Error",
+      //     description: data.error,
+      //     variant: "destructive",
+      //   });
+      // }
     } catch (error) {
       console.log("Error In app/login/page.tsx", error);
       toast({

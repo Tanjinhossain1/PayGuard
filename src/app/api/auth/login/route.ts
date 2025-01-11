@@ -13,16 +13,26 @@ export async function POST(req: Request) {
         }
 
         // Sign in user with Supabase Auth
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data } = await supabase.auth.signInWithPassword({
             email,
             password,
+            options:{captchaToken:'role'}
         });
-
-        if (error) {
-            return NextResponse.json({ error: error.message }, { status: 400 });
-        }
-        // Return success login status
-        return NextResponse.json({ message: 'Login successful', session: data });
+        const response = NextResponse.json({ message: 'Login successful' });
+        if (!data.session?.access_token) {
+            return NextResponse.json({ error: 'Token is missing' }, { status: 400 });
+          }
+          
+          response.cookies.set('supabase_token', data.session.access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24, // 1 day
+            path: '/',
+          });
+          
+    
+        return response;
+    
     } catch (err) {
         return NextResponse.json(
             { error: err, message: 'An unexpected error occurred' },
